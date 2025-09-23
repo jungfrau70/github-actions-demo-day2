@@ -32,9 +32,9 @@ permissions:
   packages: write
 
 env:
-  REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+  REGISTRY: docker.io
   IMAGE_NAME: github-actions-demo-day2
-  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
 
 jobs:
   # 코드 품질 검사
@@ -296,16 +296,11 @@ jobs:
     - name: 코드 체크아웃
       uses: actions/checkout@v4
       
-    - name: AWS ECR 로그인
-      uses: aws-actions/configure-aws-credentials@v4
+    - name: Docker Hub 로그인
+      uses: docker/login-action@v3
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
-        
-    - name: ECR 로그인
-      id: ecr-login
-      uses: aws-actions/amazon-ecr-login@v2
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
         
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -323,10 +318,10 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
         tags: |
-          ${{ env.REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
-          ${{ env.REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
-          ${{ env.REGISTRY }}/${{ env.ECR_REPOSITORY }}:v2.0.0
-          ${{ env.REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.ref_name }}-${{ github.sha }}
+          ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+          ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:v2.0.0
+          ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-${{ github.sha }}
         labels: |
           org.opencontainers.image.title=GitHub Actions Demo Day2
           org.opencontainers.image.description=Advanced CI/CD Pipeline Demo
@@ -347,7 +342,7 @@ jobs:
     - name: Trivy 보안 스캔
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: ${{ env.REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+        image-ref: ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
         format: 'sarif'
         output: 'trivy-results.sarif'
         
@@ -374,19 +369,8 @@ jobs:
         username: ${{ secrets.PROD_VM_USERNAME }}
         key: ${{ secrets.PROD_VM_SSH_KEY }}
         script: |
-          # AWS CLI 설치 (ECR 로그인을 위해 필요)
-          if ! command -v aws &> /dev/null; then
-            echo "📦 AWS CLI 설치 중..."
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-            rm -rf aws awscliv2.zip
-          fi
-          
-          # AWS 자격 증명 설정
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws configure set default.region ${{ secrets.AWS_REGION }}
+          # Docker Hub 로그인을 위한 설정 (AWS CLI 불필요)
+          echo "🐳 Docker Hub를 사용하여 이미지를 가져옵니다..."
           
           # 환경 변수 설정 (참조 프로젝트 가이드 적용)
           export DB_PASSWORD="${{ secrets.PROD_DB_PASSWORD }}"
@@ -411,8 +395,8 @@ jobs:
           fi
           
           # AWS ECR 로그인 및 최신 이미지 풀
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.REGISTRY }}
-          docker pull ${{ env.REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker pull ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
           
           # 이전 이미지 정리
           docker image prune -f
@@ -595,19 +579,8 @@ jobs:
         username: ${{ secrets.STAGING_VM_USERNAME }}
         key: ${{ secrets.STAGING_VM_SSH_KEY }}
         script: |
-          # AWS CLI 설치 (ECR 로그인을 위해 필요)
-          if ! command -v aws &> /dev/null; then
-            echo "📦 AWS CLI 설치 중..."
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-            rm -rf aws awscliv2.zip
-          fi
-          
-          # AWS 자격 증명 설정
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws configure set default.region ${{ secrets.AWS_REGION }}
+          # Docker Hub 로그인을 위한 설정 (AWS CLI 불필요)
+          echo "🐳 Docker Hub를 사용하여 이미지를 가져옵니다..."
           
           # 환경 변수 설정
           export DB_PASSWORD="${{ secrets.STAGING_DB_PASSWORD }}"
@@ -623,8 +596,8 @@ jobs:
           fi
           
           # AWS ECR 로그인 및 최신 이미지 풀
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.REGISTRY }}
-          docker pull ${{ env.REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker pull ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
           
           # 이전 이미지 정리
           docker image prune -f
@@ -739,19 +712,8 @@ jobs:
         username: ${{ secrets.PROD_VM_USERNAME }}
         key: ${{ secrets.PROD_VM_SSH_KEY }}
         script: |
-          # AWS CLI 설치 (ECR 로그인을 위해 필요)
-          if ! command -v aws &> /dev/null; then
-            echo "📦 AWS CLI 설치 중..."
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-            rm -rf aws awscliv2.zip
-          fi
-          
-          # AWS 자격 증명 설정
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws configure set default.region ${{ secrets.AWS_REGION }}
+          # Docker Hub 로그인을 위한 설정 (AWS CLI 불필요)
+          echo "🐳 Docker Hub를 사용하여 이미지를 가져옵니다..."
           
           # 환경 변수 설정 (참조 프로젝트 가이드 적용)
           export DB_PASSWORD="${{ secrets.PROD_DB_PASSWORD }}"
@@ -773,12 +735,12 @@ jobs:
           # Blue-Green 배포를 위한 백업
           if [ -f docker-compose.prod.yml ]; then
             docker-compose -f docker-compose.prod.yml down
-            docker tag ${{ env.REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest ${{ env.REGISTRY }}/${{ env.ECR_REPOSITORY }}:backup-$(date +%Y%m%d-%H%M%S)
+            docker tag ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:backup-$(date +%Y%m%d-%H%M%S)
           fi
           
           # AWS ECR 로그인 및 최신 이미지 풀
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.REGISTRY }}
-          docker pull ${{ env.REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker pull ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
           
           # 이전 이미지 정리
           docker image prune -f
@@ -956,19 +918,8 @@ jobs:
         username: ${{ secrets.STAGING_VM_USERNAME }}
         key: ${{ secrets.STAGING_VM_SSH_KEY }}
         script: |
-          # AWS CLI 설치 (ECR 로그인을 위해 필요)
-          if ! command -v aws &> /dev/null; then
-            echo "📦 AWS CLI 설치 중..."
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-            rm -rf aws awscliv2.zip
-          fi
-          
-          # AWS 자격 증명 설정
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws configure set default.region ${{ secrets.AWS_REGION }}
+          # Docker Hub 로그인을 위한 설정 (AWS CLI 불필요)
+          echo "🐳 Docker Hub를 사용하여 이미지를 가져옵니다..."
           
           # 환경 변수 설정
           export DB_PASSWORD="${{ secrets.STAGING_DB_PASSWORD }}"
@@ -981,12 +932,12 @@ jobs:
           # Blue-Green 배포를 위한 백업
           if [ -f docker-compose.prod.yml ]; then
             docker-compose -f docker-compose.prod.yml down
-            docker tag ${{ env.REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest ${{ env.REGISTRY }}/${{ env.ECR_REPOSITORY }}:backup-$(date +%Y%m%d-%H%M%S)
+            docker tag ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:backup-$(date +%Y%m%d-%H%M%S)
           fi
           
           # AWS ECR 로그인 및 최신 이미지 풀
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.REGISTRY }}
-          docker pull ${{ env.REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker pull ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
           
           # 이전 이미지 정리
           docker image prune -f
