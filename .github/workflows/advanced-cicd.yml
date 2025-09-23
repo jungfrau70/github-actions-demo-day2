@@ -429,7 +429,19 @@ jobs:
           # 데이터베이스 초기화 스크립트 디렉토리 생성
           mkdir -p database
           
+    - name: 데이터베이스 스크립트 존재 확인
+      id: check-db-scripts
+      run: |
+        if [ -d "database" ] && [ "$(find database -type f -name "*.sql" -o -name "*.sh" -o -name "*.js" 2>/dev/null | wc -l)" -gt 0 ]; then
+          echo "has-db-scripts=true" >> $GITHUB_OUTPUT
+          echo "✅ 데이터베이스 스크립트가 존재합니다"
+        else
+          echo "has-db-scripts=false" >> $GITHUB_OUTPUT
+          echo "⚠️ 데이터베이스 스크립트가 없습니다. 복사를 건너뜁니다"
+        fi
+        
     - name: 데이터베이스 초기화 스크립트 복사
+      if: steps.check-db-scripts.outputs.has-db-scripts == 'true'
       uses: appleboy/scp-action@v0.1.4
       with:
         host: ${{ secrets.PROD_VM_HOST }}
@@ -630,7 +642,19 @@ jobs:
           # 데이터베이스 초기화 스크립트 디렉토리 생성
           mkdir -p database
           
+    - name: 데이터베이스 스크립트 존재 확인
+      id: check-db-scripts
+      run: |
+        if [ -d "database" ] && [ "$(find database -type f -name "*.sql" -o -name "*.sh" -o -name "*.js" 2>/dev/null | wc -l)" -gt 0 ]; then
+          echo "has-db-scripts=true" >> $GITHUB_OUTPUT
+          echo "✅ 데이터베이스 스크립트가 존재합니다"
+        else
+          echo "has-db-scripts=false" >> $GITHUB_OUTPUT
+          echo "⚠️ 데이터베이스 스크립트가 없습니다. 복사를 건너뜁니다"
+        fi
+        
     - name: 데이터베이스 초기화 스크립트 복사
+      if: steps.check-db-scripts.outputs.has-db-scripts == 'true'
       uses: appleboy/scp-action@v0.1.4
       with:
         host: ${{ secrets.STAGING_VM_HOST }}
@@ -773,7 +797,19 @@ jobs:
           # 데이터베이스 초기화 스크립트 디렉토리 생성
           mkdir -p database
           
+    - name: 데이터베이스 스크립트 존재 확인
+      id: check-db-scripts
+      run: |
+        if [ -d "database" ] && [ "$(find database -type f -name "*.sql" -o -name "*.sh" -o -name "*.js" 2>/dev/null | wc -l)" -gt 0 ]; then
+          echo "has-db-scripts=true" >> $GITHUB_OUTPUT
+          echo "✅ 데이터베이스 스크립트가 존재합니다"
+        else
+          echo "has-db-scripts=false" >> $GITHUB_OUTPUT
+          echo "⚠️ 데이터베이스 스크립트가 없습니다. 복사를 건너뜁니다"
+        fi
+        
     - name: 데이터베이스 초기화 스크립트 복사
+      if: steps.check-db-scripts.outputs.has-db-scripts == 'true'
       uses: appleboy/scp-action@v0.1.4
       with:
         host: ${{ secrets.PROD_VM_HOST }}
@@ -970,7 +1006,19 @@ jobs:
           # 데이터베이스 초기화 스크립트 디렉토리 생성
           mkdir -p database
           
+    - name: 데이터베이스 스크립트 존재 확인
+      id: check-db-scripts
+      run: |
+        if [ -d "database" ] && [ "$(find database -type f -name "*.sql" -o -name "*.sh" -o -name "*.js" 2>/dev/null | wc -l)" -gt 0 ]; then
+          echo "has-db-scripts=true" >> $GITHUB_OUTPUT
+          echo "✅ 데이터베이스 스크립트가 존재합니다"
+        else
+          echo "has-db-scripts=false" >> $GITHUB_OUTPUT
+          echo "⚠️ 데이터베이스 스크립트가 없습니다. 복사를 건너뜁니다"
+        fi
+        
     - name: 데이터베이스 초기화 스크립트 복사
+      if: steps.check-db-scripts.outputs.has-db-scripts == 'true'
       uses: appleboy/scp-action@v0.1.4
       with:
         host: ${{ secrets.STAGING_VM_HOST }}
