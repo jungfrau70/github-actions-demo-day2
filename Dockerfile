@@ -19,7 +19,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # 프로덕션 의존성만 설치 및 보안 검사
-RUN npm ci --only=production && \
+RUN npm install --omit=dev && \
     npm audit --audit-level=moderate && \
     npm cache clean --force && \
     chown -R nextjs:nodejs /app
@@ -30,7 +30,7 @@ WORKDIR /app
 
 # 모든 의존성 설치 (빌드용)
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 # 소스 코드 복사 및 빌드
 COPY . .
