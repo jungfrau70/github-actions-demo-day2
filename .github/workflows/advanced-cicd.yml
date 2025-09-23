@@ -378,12 +378,18 @@ jobs:
           export CONTAINER_PREFIX="aws-vm-prod"
           export NODE_ENV="production"
           export PORT="3000"
+          export DOCKER_USERNAME="${{ secrets.DOCKER_USERNAME }}"
+          export IMAGE_NAME="github-actions-demo-day2"
+          export IMAGE_TAG="latest"
           
           # 환경 변수 로드 확인
           echo "🔍 환경 변수 확인:"
           echo "CONTAINER_PREFIX: $CONTAINER_PREFIX"
           echo "NODE_ENV: $NODE_ENV"
           echo "PORT: $PORT"
+          echo "DOCKER_USERNAME: $DOCKER_USERNAME"
+          echo "IMAGE_NAME: $IMAGE_NAME"
+          echo "IMAGE_TAG: $IMAGE_TAG"
           
           # 작업 디렉토리 생성 및 이동
           mkdir -p /home/${{ secrets.PROD_VM_USERNAME }}/app
@@ -465,12 +471,18 @@ jobs:
           export CONTAINER_PREFIX="aws-vm-prod"
           export NODE_ENV="production"
           export PORT="3000"
+          export DOCKER_USERNAME="${{ secrets.DOCKER_USERNAME }}"
+          export IMAGE_NAME="github-actions-demo-day2"
+          export IMAGE_TAG="latest"
           
           # 환경 변수 로드 확인
           echo "🔍 환경 변수 확인:"
           echo "CONTAINER_PREFIX: $CONTAINER_PREFIX"
           echo "NODE_ENV: $NODE_ENV"
           echo "PORT: $PORT"
+          echo "DOCKER_USERNAME: $DOCKER_USERNAME"
+          echo "IMAGE_NAME: $IMAGE_NAME"
+          echo "IMAGE_TAG: $IMAGE_TAG"
           
           # 기존 서비스 및 이미지 정리
           echo "🧹 기존 서비스 및 이미지 정리 중..."
@@ -491,6 +503,11 @@ jobs:
           
           # Docker Compose로 서비스 시작
           echo "🚀 Docker Compose로 서비스 시작 중..."
+          echo "🔍 Docker Compose 환경 변수 확인:"
+          echo "DOCKER_USERNAME: $DOCKER_USERNAME"
+          echo "IMAGE_NAME: $IMAGE_NAME"
+          echo "IMAGE_TAG: $IMAGE_TAG"
+          docker-compose -f docker-compose.prod.yml config
           docker-compose -f docker-compose.prod.yml up -d
           
           # 서비스 시작 대기
@@ -504,7 +521,7 @@ jobs:
           # 포트 충돌 확인
           echo "🔍 포트 충돌 확인..."
           netstat -tulpn | grep :3000 || echo "포트 3000 사용 가능"
-          netstat -tulpn | grep :80 || echo "포트 80 사용 가능"
+          # netstat -tulpn | grep :80 || echo "포트 80 사용 가능"  # nginx 사용 안함
           
           # 컨테이너 로그 확인
           echo "📋 컨테이너 로그 확인..."
@@ -528,21 +545,12 @@ jobs:
             if netstat -tlnp 2>/dev/null | grep :3000 > /dev/null; then
               echo "✅ app이 포트 3000에서 리스닝 중"
               
-              # nginx가 포트 80에서 리스닝하는지 확인
-              if netstat -tlnp 2>/dev/null | grep :80 > /dev/null; then
-                echo "✅ nginx가 포트 80에서 리스닝 중"
-                
-                # 실제 헬스체크 시도
-                if curl -f http://localhost/health 2>/dev/null; then
-                  echo "✅ 헬스체크 성공!"
-                  break
-                else
-                  echo "nginx는 리스닝 중이지만 헬스체크 실패, 재시도 중..."
-                  sleep 10
-                  continue
-                fi
+              # 애플리케이션 헬스체크 시도
+              if curl -f http://localhost:3000/health 2>/dev/null; then
+                echo "✅ 헬스체크 성공!"
+                break
               else
-                echo "nginx가 아직 포트 80에서 리스닝하지 않음..."
+                echo "애플리케이션 헬스체크 실패, 재시도 중..."
                 sleep 10
                 continue
               fi
@@ -676,6 +684,9 @@ jobs:
           export DB_PASSWORD="${{ secrets.STAGING_DB_PASSWORD }}"
           export REDIS_PASSWORD="${{ secrets.STAGING_REDIS_PASSWORD }}"
           export CONTAINER_PREFIX="gcp-staging"
+          export DOCKER_USERNAME="${{ secrets.DOCKER_USERNAME }}"
+          export IMAGE_NAME="github-actions-demo-day2"
+          export IMAGE_TAG="latest"
           
           # 기존 서비스 및 이미지 정리
           echo "🧹 기존 서비스 및 이미지 정리 중..."
@@ -701,7 +712,7 @@ jobs:
           echo "🏥 헬스체크 시작..."
           for i in {1..10}; do
             echo "헬스체크 시도 $i/10..."
-            if curl -f http://localhost/health; then
+            if curl -f http://localhost:3000/health; then
               echo "✅ 헬스체크 성공!"
               break
             fi
@@ -745,12 +756,18 @@ jobs:
           export CONTAINER_PREFIX="aws-vm-prod"
           export NODE_ENV="production"
           export PORT="3000"
+          export DOCKER_USERNAME="${{ secrets.DOCKER_USERNAME }}"
+          export IMAGE_NAME="github-actions-demo-day2"
+          export IMAGE_TAG="latest"
           
           # 환경 변수 로드 확인
           echo "🔍 환경 변수 확인:"
           echo "CONTAINER_PREFIX: $CONTAINER_PREFIX"
           echo "NODE_ENV: $NODE_ENV"
           echo "PORT: $PORT"
+          echo "DOCKER_USERNAME: $DOCKER_USERNAME"
+          echo "IMAGE_NAME: $IMAGE_NAME"
+          echo "IMAGE_TAG: $IMAGE_TAG"
           
           # 작업 디렉토리 생성 및 이동
           mkdir -p /home/${{ secrets.PROD_VM_USERNAME }}/app
@@ -831,6 +848,9 @@ jobs:
           export DB_PASSWORD="${{ secrets.PROD_DB_PASSWORD }}"
           export REDIS_PASSWORD="${{ secrets.PROD_REDIS_PASSWORD }}"
           export CONTAINER_PREFIX="aws-production"
+          export DOCKER_USERNAME="${{ secrets.DOCKER_USERNAME }}"
+          export IMAGE_NAME="github-actions-demo-day2"
+          export IMAGE_TAG="latest"
           
           # 기존 서비스 및 이미지 정리
           echo "🧹 기존 서비스 및 이미지 정리 중..."
@@ -851,6 +871,11 @@ jobs:
           
           # Docker Compose로 서비스 시작
           echo "🚀 Docker Compose로 서비스 시작 중..."
+          echo "🔍 Docker Compose 환경 변수 확인:"
+          echo "DOCKER_USERNAME: $DOCKER_USERNAME"
+          echo "IMAGE_NAME: $IMAGE_NAME"
+          echo "IMAGE_TAG: $IMAGE_TAG"
+          docker-compose -f docker-compose.prod.yml config
           docker-compose -f docker-compose.prod.yml up -d
           
           # 서비스 시작 대기
@@ -864,7 +889,7 @@ jobs:
           # 포트 충돌 확인
           echo "🔍 포트 충돌 확인..."
           netstat -tulpn | grep :3000 || echo "포트 3000 사용 가능"
-          netstat -tulpn | grep :80 || echo "포트 80 사용 가능"
+          # netstat -tulpn | grep :80 || echo "포트 80 사용 가능"  # nginx 사용 안함
           
           # 컨테이너 로그 확인
           echo "📋 컨테이너 로그 확인..."
@@ -888,21 +913,12 @@ jobs:
             if netstat -tlnp 2>/dev/null | grep :3000 > /dev/null; then
               echo "✅ app이 포트 3000에서 리스닝 중"
               
-              # nginx가 포트 80에서 리스닝하는지 확인
-              if netstat -tlnp 2>/dev/null | grep :80 > /dev/null; then
-                echo "✅ nginx가 포트 80에서 리스닝 중"
-                
-                # 실제 헬스체크 시도
-                if curl -f http://localhost/health 2>/dev/null; then
-                  echo "✅ 헬스체크 성공!"
-                  break
-                else
-                  echo "nginx는 리스닝 중이지만 헬스체크 실패, 재시도 중..."
-                  sleep 10
-                  continue
-                fi
+              # 애플리케이션 헬스체크 시도
+              if curl -f http://localhost:3000/health 2>/dev/null; then
+                echo "✅ 헬스체크 성공!"
+                break
               else
-                echo "nginx가 아직 포트 80에서 리스닝하지 않음..."
+                echo "애플리케이션 헬스체크 실패, 재시도 중..."
                 sleep 10
                 continue
               fi
@@ -1040,6 +1056,9 @@ jobs:
           export DB_PASSWORD="${{ secrets.STAGING_DB_PASSWORD }}"
           export REDIS_PASSWORD="${{ secrets.STAGING_REDIS_PASSWORD }}"
           export CONTAINER_PREFIX="gcp-production"
+          export DOCKER_USERNAME="${{ secrets.DOCKER_USERNAME }}"
+          export IMAGE_NAME="github-actions-demo-day2"
+          export IMAGE_TAG="latest"
           
           # 기존 서비스 및 이미지 정리
           echo "🧹 기존 서비스 및 이미지 정리 중..."
@@ -1065,7 +1084,7 @@ jobs:
           echo "🏥 헬스체크 시작..."
           for i in {1..10}; do
             echo "헬스체크 시도 $i/10..."
-            if curl -f http://localhost/health; then
+            if curl -f http://localhost:3000/health; then
               echo "✅ 헬스체크 성공!"
               break
             fi
