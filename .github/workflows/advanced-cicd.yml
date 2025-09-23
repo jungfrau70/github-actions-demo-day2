@@ -49,8 +49,11 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: 'package-lock.json'
+        
+    - name: npm 캐시 설정
+      run: |
+        npm config set cache /home/runner/.npm
+        npm config set registry https://registry.npmjs.org/
         
     - name: 의존성 설치
       run: npm ci
@@ -113,8 +116,11 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-        cache-dependency-path: 'package-lock.json'
+        
+    - name: npm 캐시 설정
+      run: |
+        npm config set cache /home/runner/.npm
+        npm config set registry https://registry.npmjs.org/
         
     - name: 의존성 설치
       run: npm ci
