@@ -1145,7 +1145,7 @@ jobs:
         if [ "${{ needs.deploy-aws.result }}" == "success" ]; then
           echo "Testing AWS staging environment..."
           curl -f http://${{ secrets.STAGING_VM_HOST }}/health
-          curl -f http://${{ secrets.STAGING_VM_HOST }}/api/users
+          curl -f http://${{ secrets.STAGING_VM_HOST }}/api/status
           echo "✅ AWS staging environment tests passed"
         fi
         
@@ -1153,7 +1153,7 @@ jobs:
         if [ "${{ needs.deploy-gcp.result }}" == "success" ]; then
           echo "Testing GCP staging environment..."
           curl -f http://${{ secrets.STAGING_VM_HOST }}/health
-          curl -f http://${{ secrets.STAGING_VM_HOST }}/api/users
+          curl -f http://${{ secrets.STAGING_VM_HOST }}/api/status
           echo "✅ GCP staging environment tests passed"
         fi
         
@@ -1161,7 +1161,7 @@ jobs:
         if [ "${{ needs.deploy-aws-production.result }}" == "success" ]; then
           echo "Testing AWS production environment..."
           curl -f http://${{ secrets.PROD_VM_HOST }}/health
-          curl -f http://${{ secrets.PROD_VM_HOST }}/api/users
+          curl -f http://${{ secrets.PROD_VM_HOST }}/api/status
           echo "✅ AWS production environment tests passed"
         fi
         
@@ -1169,7 +1169,7 @@ jobs:
         if [ "${{ needs.deploy-gcp-production.result }}" == "success" ]; then
           echo "Testing GCP production environment..."
           curl -f http://${{ secrets.PROD_VM_HOST }}/health
-          curl -f http://${{ secrets.PROD_VM_HOST }}/api/users
+          curl -f http://${{ secrets.PROD_VM_HOST }}/api/status
           echo "✅ GCP production environment tests passed"
         fi
 
