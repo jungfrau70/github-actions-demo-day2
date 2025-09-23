@@ -489,6 +489,13 @@ jobs:
           docker-compose -f docker-compose.prod.yml down --remove-orphans || true
           docker stop $(docker ps -aq) 2>/dev/null || true
           docker rm $(docker ps -aq) 2>/dev/null || true
+          
+          # PostgreSQL 호환성 문제 해결을 위한 볼륨 삭제
+          echo "🗄️ PostgreSQL 데이터 볼륨 삭제 중..."
+          docker volume rm github-actions-demo_postgres_data 2>/dev/null || true
+          docker volume rm project_postgres_data 2>/dev/null || true
+          docker volume ls | grep postgres | awk '{print $2}' | xargs -r docker volume rm || true
+          
           docker system prune -a -f || true
           docker volume prune -f || true
           
@@ -693,6 +700,13 @@ jobs:
           docker-compose -f docker-compose.prod.yml down --remove-orphans || true
           docker stop $(docker ps -aq) 2>/dev/null || true
           docker rm $(docker ps -aq) 2>/dev/null || true
+          
+          # PostgreSQL 호환성 문제 해결을 위한 볼륨 삭제
+          echo "🗄️ PostgreSQL 데이터 볼륨 삭제 중..."
+          docker volume rm github-actions-demo_postgres_data 2>/dev/null || true
+          docker volume rm project_postgres_data 2>/dev/null || true
+          docker volume ls | grep postgres | awk '{print $2}' | xargs -r docker volume rm || true
+          
           docker system prune -a -f || true
           docker volume prune -f || true
           
@@ -857,6 +871,13 @@ jobs:
           docker-compose -f docker-compose.prod.yml down --remove-orphans || true
           docker stop $(docker ps -aq) 2>/dev/null || true
           docker rm $(docker ps -aq) 2>/dev/null || true
+          
+          # PostgreSQL 호환성 문제 해결을 위한 볼륨 삭제
+          echo "🗄️ PostgreSQL 데이터 볼륨 삭제 중..."
+          docker volume rm github-actions-demo_postgres_data 2>/dev/null || true
+          docker volume rm project_postgres_data 2>/dev/null || true
+          docker volume ls | grep postgres | awk '{print $2}' | xargs -r docker volume rm || true
+          
           docker system prune -a -f || true
           docker volume prune -f || true
           
@@ -1065,6 +1086,13 @@ jobs:
           docker-compose -f docker-compose.prod.yml down --remove-orphans || true
           docker stop $(docker ps -aq) 2>/dev/null || true
           docker rm $(docker ps -aq) 2>/dev/null || true
+          
+          # PostgreSQL 호환성 문제 해결을 위한 볼륨 삭제
+          echo "🗄️ PostgreSQL 데이터 볼륨 삭제 중..."
+          docker volume rm github-actions-demo_postgres_data 2>/dev/null || true
+          docker volume rm project_postgres_data 2>/dev/null || true
+          docker volume ls | grep postgres | awk '{print $2}' | xargs -r docker volume rm || true
+          
           docker system prune -a -f || true
           docker volume prune -f || true
           
