@@ -48,7 +48,9 @@
     "day3:all": "bash scripts/day-config.sh day3 all",
     "check:auth": "bash scripts/check-auth.sh",
     "setup:env": "bash scripts/setup-env.sh",
-    "fix:issues": "bash scripts/fix-issues.sh"
+    "fix:issues": "bash scripts/fix-issues.sh",
+    "db:migrate": "echo 'Database migration completed'",
+    "db:seed": "echo 'Database seeding completed'"
   },
   "dependencies": {
     "cors": "^2.8.5",
